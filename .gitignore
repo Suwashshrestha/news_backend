@@ -1,0 +1,13 @@
+.env
+*.db
+__pycache__/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Uploaded media (keep folder structure)
+media/images/*
+media/videos/*
+media/thumbnails/*
+!media/**/.gitkeep
