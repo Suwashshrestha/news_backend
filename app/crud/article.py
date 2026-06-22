@@ -48,7 +48,6 @@ async def get_trending_articles(
     result = await db.execute(q)
     return list(result.scalars().all())
 
-
 # ── Create ────────────────────────────────────────────────────────────────────
 
 async def create_article(

@@ -19,6 +19,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.core.config import settings
 
 
 # ── User (Admin / Editor) ─────────────────────────────────────────────────────
@@ -153,4 +154,43 @@ class ContactSubmission(Base):
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     submitted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+# ── Photo Gallery ────────────────────────────────────────────────────────────
+
+class Photo(Base):
+    __tablename__ = "photos"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+
+    tags: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True
+    )  # comma separated tags
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    # Uploaded image path
+    image_path: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False
+    )
+
+
+    published_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        index=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
     )

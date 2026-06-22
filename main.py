@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.db.session import AsyncSessionLocal
 from app.crud import user as crud_user
-from app.routers import ads, auth, categories, contact, news, uploads, videos
+from app.routers import ads, auth, categories, contact, news, uploads, videos,gallery
 
 app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
 
@@ -35,6 +35,7 @@ app.include_router(categories.router)
 app.include_router(contact.router)
 app.include_router(ads.router)
 app.include_router(uploads.router)
+app.include_router(gallery.router)
 
 
 # ── Startup: seed default admin if not present ────────────────────────────────

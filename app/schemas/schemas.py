@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_serializer
 
 
 # ── User ──────────────────────────────────────────────────────────────────────
@@ -147,3 +147,26 @@ class AdvertisementOut(BaseModel):
 class AdvertisementUpdate(BaseModel):
     redirect_url: Optional[str] = None
     is_active: Optional[bool] = None
+
+
+    # -------------------Gallery---------------------
+class PhotoOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    tags: Optional[str]
+    description: Optional[str]
+    image_path: str
+    published_at: datetime
+    created_at: datetime
+    @field_serializer("image_path")
+    def serialize_image_path(self, value: str):
+        path = value.replace("\\", "/")
+        return f"http://localhost:8000/{path}"
+
+
+class PhotoUpdate(BaseModel):
+    title: Optional[str] = None
+    tags: Optional[str] = None
+    description: Optional[str] = None
