@@ -68,6 +68,7 @@ class ArticleOut(BaseModel):
     summary: Optional[str]
     content: str
     image_path: Optional[str]        # e.g. "media/images/abc123.jpg"
+    sub_images: list[str] = []
     author_name: str
     views: int
     is_breaking_news: bool
@@ -158,14 +159,10 @@ class PhotoOut(BaseModel):
     tags: Optional[str]
     description: Optional[str]
     image_path: str
+    sub_images: list[str] = []
     published_at: datetime
     created_at: datetime
-    @field_serializer("image_path")
-    def serialize_image_path(self, value: str):
-        path = value.replace("\\", "/")
-        return f"http://localhost:8000/{path}"
-
-
+  
 class PhotoUpdate(BaseModel):
     title: Optional[str] = None
     tags: Optional[str] = None

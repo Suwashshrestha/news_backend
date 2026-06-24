@@ -7,6 +7,8 @@ All SQLAlchemy ORM models.
 
 from datetime import datetime, timezone
 
+from sqlalchemy import JSON
+
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -64,7 +66,7 @@ class Article(Base):
 
     # Uploaded image file path (e.g. "media/images/abc123.jpg")
     image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
-
+    sub_images: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     author_name: Mapped[str] = mapped_column(String(150), nullable=False)
     views: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     is_breaking_news: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -180,7 +182,10 @@ class Photo(Base):
         String(500),
         nullable=False
     )
-
+    sub_images: Mapped[list[str]] = mapped_column(
+     JSON,
+    default=list,
+    nullable=False)
 
     published_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

@@ -42,9 +42,14 @@ async def get_trending(
 @router.get("/{article_id}", response_model=ArticleOut)
 async def get_article(article_id: int, db: AsyncSession = Depends(get_db)):
     article = await crud_article.get_article(db, article_id)
+
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
+
     await crud_article.increment_views(db, article_id)
+
+    article = await crud_article.get_article(db, article_id)
+
     return article
 
 
@@ -60,10 +65,18 @@ async def create_article(
     is_breaking_news: bool = Form(False),
     # ✅ Image uploaded as a file, not a URL
     image: UploadFile | None = File(None),
+    sub_images: list[UploadFile] = File([]),
     db: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
 ):
     image_path = await save_image(image) if image else None
+
+    sub_image_paths = []
+
+    for img in sub_images:
+     path = await save_image(img)
+     sub_image_paths.append(path.replace("\\", "/"))
+    
     return await crud_article.create_article(
         db,
         title=title,
@@ -71,6 +84,7 @@ async def create_article(
         author_name=author_name,
         summary=summary,
         image_path=image_path,
+        sub_images=sub_image_paths,
         category_id=category_id,
         is_breaking_news=is_breaking_news,
     )
@@ -87,6 +101,7 @@ async def update_article(
     category_id: int | None = Form(None),
     # ✅ New image can be re-uploaded; old file is deleted automatically
     image: UploadFile | None = File(None),
+    sub_images: list[UploadFile] = File([]),
     db: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
 ):

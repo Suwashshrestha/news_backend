@@ -58,6 +58,7 @@ async def create_article(
     author_name: str,
     summary: str | None = None,
     image_path: str | None = None,
+    sub_images: list[str] | None = None,
     category_id: int | None = None,
     is_breaking_news: bool = False,
 ) -> Article:
@@ -67,6 +68,7 @@ async def create_article(
         author_name=author_name,
         summary=summary,
         image_path=image_path,
+        sub_images=sub_images or [],
         category_id=category_id,
         is_breaking_news=is_breaking_news,
     )
@@ -117,4 +119,4 @@ async def increment_views(db: AsyncSession, article_id: int) -> None:
         .where(Article.id == article_id)
         .values(views=Article.views + 1)
     )
-    await db.commit()
+    await db.flush()

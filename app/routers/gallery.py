@@ -50,21 +50,39 @@ async def get_photo(photo_id: int, db: AsyncSession = Depends(get_db)):
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
     return photo
-
-@router .post("/", response_model=PhotoOut)
+@router.post("/", response_model=PhotoOut)
 async def create_photo(
-    image: UploadFile = File(...),
     title: str = Form(...),
-    description: str = Form(...),
-    tag: str | None = Form(None),
+    description: str = Form(""),
+    image: UploadFile | None = File(None),
+    sub_images: list[UploadFile] = File([]),
     db: AsyncSession = Depends(get_db),
-    _admin=Depends(get_current_admin),
 ):
-    image_path = await save_image(image)
-    photo = Photo(image_path=image_path, title=title, description=description)
+    image_path = await save_image(image) if image else None
+
+    sub_image_paths = []
+
+    for img in sub_images:
+        path = await save_image(img)
+
+        if path:
+            sub_image_paths.append(
+                path.replace("\\", "/")
+            )
+
+    photo = Photo(
+        title=title,
+        description=description,
+        image_path=image_path,
+        sub_images=sub_image_paths,
+    )
+
     db.add(photo)
+
     await db.commit()
+
     await db.refresh(photo)
+
     return photo
 
 @router.patch("/{photo_id}", response_model=PhotoOut)
@@ -74,23 +92,44 @@ async def update_photo(
     description: str | None = Form(None),
     tag: str | None = Form(None),
     image: UploadFile | None = File(None),
+    sub_images: list[UploadFile] = File([]),
     db: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
 ):
-    result = await db.execute(select(Photo).where(Photo.id == photo_id))
+    result = await db.execute(
+        select(Photo).where(Photo.id == photo_id)
+    )
+
     photo = result.scalar_one_or_none()
+
     if not photo:
-        raise HTTPException(status_code=404, detail="Photo not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    if title is not None:
+        photo.title = title
+
+    if description is not None:
+        photo.description = description
+
+    if tag is not None:
+        photo.tag = tag
 
     if image:
-        new_image_path = await save_image(image)
-        delete_file(photo.image_path)
-        photo.image_path = new_image_path
+        photo.image_path = await save_image(image)
 
-    updates = {k: v for k, v in {"title": title, "description": description, "tag": tag}.items() if v is not None}
-    for field, value in updates.items():
-        setattr(photo, field, value)
+    if sub_images:
+        paths = []
+
+        for img in sub_images:
+            path = await save_image(img)
+            paths.append(path.replace("\\", "/"))
+
+        photo.sub_images = paths
 
     await db.commit()
     await db.refresh(photo)
-    return photo  
+
+    return photo

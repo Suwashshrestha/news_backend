@@ -1,8 +1,8 @@
-"""initial tables
+"""initial database
 
-Revision ID: 893ff1fbc5b4
+Revision ID: fd56ab9a5f2c
 Revises: 
-Create Date: 2026-06-19 21:57:58.670829
+Create Date: 2026-06-23 15:24:47.205592
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '893ff1fbc5b4'
+revision = 'fd56ab9a5f2c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -95,6 +95,7 @@ def upgrade() -> None:
     sa.Column('summary', sa.String(length=500), nullable=True),
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('image_path', sa.String(length=500), nullable=True),
+    sa.Column('sub_images', sa.JSON(), nullable=False),
     sa.Column('author_name', sa.String(length=150), nullable=False),
     sa.Column('views', sa.Integer(), nullable=False),
     sa.Column('is_breaking_news', sa.Boolean(), nullable=False),

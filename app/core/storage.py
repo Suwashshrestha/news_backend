@@ -62,7 +62,7 @@ async def _save(
             await out.write(chunk)
 
     # Return a URL-ready relative path, e.g. "media/images/abc.jpg"
-    return str(full_path)
+    return str(full_path).replace("\\", "/")
 
 
 async def save_image(file: UploadFile) -> str:
