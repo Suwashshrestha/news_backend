@@ -87,6 +87,7 @@ async def update_article(
     article: Article,
     updates: dict,
     new_image_path: str | None = None,
+    sub_images: list[str] | None = None,
 ) -> Article:
     if new_image_path:
         delete_file(article.image_path)   # remove old file
@@ -95,6 +96,10 @@ async def update_article(
     for field, value in updates.items():
         if value is not None:
             setattr(article, field, value)
+
+    if sub_images:
+        article.sub_images = sub_images
+
 
     await db.commit()
     await db.refresh(article)

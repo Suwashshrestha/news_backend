@@ -110,6 +110,16 @@ async def update_article(
         raise HTTPException(status_code=404, detail="Article not found")
 
     new_image_path = await save_image(image) if image else None
+    sub_image_paths = []
+
+    if sub_images:
+     for img in sub_images:
+        path = await save_image(img)
+
+        if path:
+            sub_image_paths.append(
+                path.replace("\\", "/")
+            )
     updates = {
         k: v for k, v in {
             "title": title,
@@ -118,9 +128,10 @@ async def update_article(
             "author_name": author_name,
             "is_breaking_news": is_breaking_news,
             "category_id": category_id,
+            "sub_images": sub_image_paths if sub_image_paths else None
         }.items() if v is not None
     }
-    return await crud_article.update_article(db, article, updates, new_image_path=new_image_path)
+    return await crud_article.update_article(db, article, updates, new_image_path=new_image_path,sub_images=sub_image_paths, )
 
 
 @router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
